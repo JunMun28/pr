@@ -40,71 +40,53 @@
           </div>
           <hr>
           <div class="nav-item">
-            <a href="#"
-              class="nav-link align-middle text-secondary active-sidebar-item">
+            <div @click="change_page('query')"
+              class="nav-link align-middle text-white"
+              v-bind:class="{ 'active-sidebar-item': isQueryPage, 'inactive-sidebar-item': !isQueryPage }">
               <i class="fs-4 bi bi-search"></i>
               <span class="ms-1 d-none d-sm-inline">QUERY</span>
-            </a>
+            </div>
           </div>
           <div class="sized-box"></div>
           <div class="nav-item">
-            <a href="#"
-              class="nav-link align-middle text-secondary inactive-sidebar-item">
+            <div @click="change_page('result')"
+              class="nav-link align-middle text-white "
+              v-bind:class="{ 'active-sidebar-item': !isQueryPage, 'inactive-sidebar-item': isQueryPage }">
               <i class="fs-4 bi-clipboard-minus"></i>
               <span class="ms-1 d-none d-sm-inline">RESULT</span>
+            </div>
             </a>
           </div>
 
         </div>
 
-        <div class="col py-3">
+        <div v-if="page=='query'" class="col py-3">
           <div class="registration-form">
             <form>
               <div class="fs-1 text-center pb-5 form-title">QUERY
               </div>
               <div class="form-item-title pt-3"> <span>LOT NUMBERS</span>
               </div>
-              <div class="d-md-flex align-items-center justify-content-between">
-                <div class="circle">1</div>
+              <div v-for="index in lotCounter"
+                class="d-md-flex align-items-center justify-content-between">
+                <div class="circle">{{index}}</div>
                 <div>
                   <md-field>
-                    <label>Base1</label>
-                    <md-input v-model="type"></md-input>
+                    <label>Base1 {{lots[index-1].base1}}</label>
+                    <md-input v-model="lots[index-1].base1"></md-input>
                   </md-field>
                 </div>
                 <div>
                   <md-field>
-                    <label>Comp</label>
-                    <md-input v-model="type"></md-input>
+                    <label>Comp {{lots[index-1].comp}}</label>
+                    <md-input v-model="lots[index-1].comp"></md-input>
                   </md-field>
 
                 </div>
                 <div>
                   <md-field>
-                    <label>Base2</label>
-                    <md-input v-model="type"></md-input>
-                  </md-field>
-                </div>
-              </div>
-
-              <div class="d-md-flex align-items-center justify-content-between">
-                <div class="circle">2</div>
-                <div class="">
-                  <md-field>
-                    <label>Base1</label>
-                    <md-input v-model="type"></md-input>
-                  </md-field>
-                </div>
-                <div class="">
-                  <md-field>
-                    <label>Comp</label>
-                    <md-input v-model="type"></md-input>
-                  </md-field>
-                </div>
-                <div class="">
-                  <md-field>
-                    <label>Base2</label>
-                    <md-input v-model="type"></md-input>
+                    <label>Base2 {{lots[index-1].base2}}</label>
+                    <md-input v-model="lots[index-1].base2"></md-input>
                   </md-field>
                 </div>
               </div>
@@ -114,35 +96,82 @@
               <div class="radio-buttons">
                 <div>
                   <label>
-                    <input type="radio" name="radio" checked />
+                    <input type="radio" name="radio" value="lot"
+                      v-model='groupby' checked />
                     <span>LOT</span>
                   </label>
                 </div>
                 <div>
                   <label>
-                    <input type="radio" name="radio" />
+                    <input type="radio" name="radio" value="revision"
+                      v-model='groupby' />
                     <span>REVISION</span>
                   </label>
                 </div>
                 <div>
                   <label>
-                    <input type="radio" name="radio" />
+                    <input type="radio" name="radio" value="version"
+                      v-model='groupby' />
                     <span>VERSION</span>
                   </label>
                 </div>
               </div>
 
               <div class="form-group d-flex justify-content-center">
-                <button type="button"
+                <button type="button" @click='submit' data-bs-toggle="modal"
+                  data-bs-target="#staticBackdrop"
                   class="btn btn-block create-account ">Submit</button>
               </div>
             </form>
           </div>
         </div>
+
+        <div v-if="page=='result'">
+          <!-- Button trigger modal -->
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#staticBackdrop">
+            Launch demo modal
+          </button>
+        </div>
+
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+          data-bs-keyboard="false" tabindex="-1"
+          aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <i v-if="hasInputError"
+                class="bi bi-exclamation-triangle-fill"></i>
+              <div class="modal-body p-4">
+                {{status}}
+              </div>
+              <div v-if="showLoader" class="loader"></div>
+              <div v-if="hasInputError" class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                  @click='clearError' data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+
+
     </div>
   </div>
 
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
   <script src="https://unpkg.com/vue-material"></script>
   <script src="./app.js"></script>
@@ -150,6 +179,3 @@
 </body>
 
 </html>
-
-
-<!-- 34aebc teal color-->
